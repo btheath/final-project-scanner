@@ -4,15 +4,19 @@
 
 REPORT_FILE="report.txt"
 
-# turning each section into its own function. allows for >> removal as redirection occurs when
-# function is called
 
-# writes the report title and information on target
-# $1 = target IP or host
+#NEW - run_scan function added to run nmap scan and print results (caputred in main())
+#-sV used to detect service info for Strategy B below
+#--script vuln to run every NSE script in the "vuln" section
+#$1 = target IP or host
+run_scan() {
+    local target="$1"
+    nmap -sV --script vuln "$target"
+}
+
 
 write_header() {
-  local target="$1"
-
+  
 echo "-----------------------------------"
 echo " Network Security Scan Report "
 echo ""
@@ -20,24 +24,58 @@ echo "Target IP Address: $target"
 echo ""
 }
 
+#$1 = full nmap scan results from run_scan
 # Open Ports and Services
 write_ports_section() {
-  local target="$1"
+  local scan_results="$1"
 
 echo "-----------------------------------"
 echo "Open Ports and Detected Services"
-nmap -sV "$target" | grep "open"
+#prefilters used in grep
+echo "$scan_results" | grep -E "^[0-9]+/tcp.*open"
 echo "" 
 }
 
+#$1 = full nmap scan results from run_scan
 # Vulnerabilities
 write_vulns_section() {
 echo "-------------------------------------------"
 echo " Potential Vulnerabilities Identified "
-echo "CVE-2024-XXXX - CVE Error" #placeholder
-echo "Default Credentials - FTP Server" #placeholder
-echo "Weak SSH - Insecure config" #placeholder
 echo ""
+
+# Strategy A: grep for NSE "vulnerable" findings
+echo "[NSE Script Findings]"
+local nse_hits
+nse_hits=$(echo "$scan_results" | grep "VULNERABLE")
+if [ -n "$nse_hits" ]; then
+  echo "$nse_hits"
+  else
+  echo "No NSE 'VULNERABLE' flags found."
+fi
+echo ""
+
+# Strategy B: version checking against open port lines
+# based on example code provided in canvas
+echo "[Version-Based Checks]"
+echo "$scan_results" | grep -E "^[0-9]+/tcp.*open" | while read -r line; do
+  case "$line" in
+    *"vsftpd 2.3.4"*)
+      echo "Outdated FTP - vsftpd 2.3.4 has a known critical backdoor (CVE-2011-2523)"
+      ;;
+    *"Apache httpd 2.4.49"*)
+      echo "Outdated Web Server - Apache 2.4.49 is vulnerable to path traversal (CVE-2021-41773)"
+      ;;
+    *"OpenSSH 4."*|*"OpenSSH 5."*)
+      echo "Weak SSH - Outdated OpenSSH version detected, upgrade recommended"
+      ;;
+    *"Apache httpd 2.2"*)
+      echo "Outdated Web Server - Apache 2.2.x is end-of-life, upgrade recommended"
+      ;;
+    
+  esac
+done
+echo ""
+
 }
 
 # Recommendations
@@ -67,6 +105,11 @@ main(){
   fi
   
   local target="$1"
+
+  # NEW - added to run the scan once and reuse results for both ports and vulns section
+  echo "Running nmap scan against $target ..."
+  local scan_results
+  scan_results=$(run_scan "$target")
 
 # calling each section function in order
 # using > for header to create/overwrite. >> to append remaining sections

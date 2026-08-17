@@ -1,20 +1,18 @@
 -----------------------------------
  Network Security Scan Report 
 
-Target IP Address: scanme.nmap.org
+Target IP Address: 127.0.0.1
 
 -----------------------------------
 Open Ports and Detected Services
-22/tcp    open     ssh        OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)
-80/tcp    open     http       Apache httpd 2.4.7 ((Ubuntu))
-9929/tcp  open     nping-echo Nping echo
-31337/tcp open     tcpwrapped
 
 -------------------------------------------
  Potential Vulnerabilities Identified 
-CVE-2024-XXXX - CVE Error
-Default Credentials - FTP Server
-Weak SSH - Insecure config
+
+[NSE Script Findings]
+No NSE 'VULNERABLE' flags found.
+
+[Version-Based Checks]
 
 --------------------------------------
  Recommendations for Remediation 
@@ -23,4 +21,4 @@ Weak SSH - Insecure config
 3) Implement a firewall.
 
 ============================================
-END OF REPORT - Generated on: Mon Aug  3 04:15:49 UTC 2026
+END OF REPORT - Generated on: Mon Aug 17 03:01:53 UTC 2026
