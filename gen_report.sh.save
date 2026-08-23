@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Generates example scan report for a given target
+
+REPORT_FILE="report.txt"
+# pass target as first arg, defaults to placeholder
+TARGET="${1:-192.0.0.1}"
+
+# turning each section into its own function. allows for >> removal as redirection occurs when
+# function is called
+
+# writes the report title and information on target
+# $1 = target IP or host
+
+# NEW - wrapped suggested command's output into variable SCAN_RESULTS
+# using -sV as Strategy B of guidelines needs version strings to match against
+# --scrit vuln to run every NSE script in the "vuln" section
+run_scan() {
+	echo "Running nmap scan against $TARGET ..."
+	SCAN_RESULTS=$(nmap -sV --script vuln "$TARGET")
+}
+
+write_header() {
+echo "-----------------------------------"
+echo " Network Security Scan Report "
+echo ""
+echo "Target IP Address: $target"
+echo ""
+}
+
+# Open Ports and Services
+write_ports_section() {
+  local target="$1"
+
+echo "-----------------------------------"
+echo "Open Ports and Detected Services"    echo "-----------------------------------" > "$OUTPUT_FILE"
+    echo " Network Security Scan Report " >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+    echo "Target IP Address: $TARGET" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+
+nmap -sV "$target" | grep "open"
+echo "" 
+}
+
+# Vulnerabilities
+write_vulns_section() {
+echo "-------------------------------------------"
+echo " Potential Vulnerabilities Identified "
+echo "CVE-2024-XXXX - CVE Error" #placeholder
+echo "Default Credentials - FTP Server" #placeholder
+echo "Weak SSH - Insecure config" #placeholder
+echo ""
+}
+
+# Recommendations
+write_recs_section() {
+echo "--------------------------------------" 
+echo " Recommendations for Remediation " 
+echo "1) Update all software to the latest versions." 
+echo "2) Change default credentials." 
+echo "3) Implement a firewall." 
+echo "" 
+}
+
+# footer
+write_footer() {
+echo "============================================"
+echo "END OF REPORT - Generated on: $(date)"
+}
+
+# main script: validation control and report generation
+
+main(){
+  # input validation: requires one argument
+  if [ "$#" -ne 1 ];
+    then
+    echo "Usage: $0 <target_ip_or_host>" >&2
+    exit 1
+  fi
+  
+  local target="$1"
+
+# calling each section function in order
+# using > for header to create/overwrite. >> to append remaining sections
+  write_header "$target" > "$REPORT_FILE"
+  write_ports_section "$target" >> "$REPORT_FILE"
+  write_vulns_section >> "$REPORT_FILE"
+  write_recs_section >> "$REPORT_FILE"
+  write_footer >> "$REPORT_FILE"
+
+  echo "Report generated: $REPORT_FILE"
+
+}
+
+# calling script after all functions are defined before execution
+main "$@"
