@@ -5,6 +5,10 @@ Target IP Address: scanme.nmap.org
 
 -----------------------------------
 Open Ports and Detected Services
+22/tcp    open     ssh        OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)
+80/tcp    open     http       Apache httpd 2.4.7 ((Ubuntu))
+9929/tcp  open     nping-echo Nping echo
+31337/tcp open     tcpwrapped
 
 -------------------------------------------
  Potential Vulnerabilities Identified 
@@ -14,6 +18,17 @@ Open Ports and Detected Services
 |     State: LIKELY VULNERABLE
 
 [Version-Based Checks]
+Port 22/tcp (ssh): detected OpenSSH 6.6.1p1
+
+Querying NVD for vulnerabilities in: OpenSSH 6.6.1p1...
+  [+] No vulnerabilities found in NVD for this keyword search.
+Port 80/tcp (http): detected Apache httpd 2.4.7
+
+Querying NVD for vulnerabilities in: Apache httpd 2.4.7...
+  CVE ID: CVE-2021-44224
+  Description: A crafted URI sent to httpd configured as a forward proxy (ProxyRequests on) can cause a crash (NULL pointer dereference) or, for configurations mixing forward and reverse proxy declarations, can allow for requests to be directed to a declared Unix Domain Socket endpoint (Server Side Request Forgery). This issue affects Apache HTTP Server 2.4.7 up to 2.4.51 (included).
+  Severity: HIGH
+---
 
 --------------------------------------
  Recommendations for Remediation 
@@ -22,4 +37,4 @@ Open Ports and Detected Services
 3) Implement a firewall.
 
 ============================================
-END OF REPORT - Generated on: Mon Aug 17 03:13:40 UTC 2026
+END OF REPORT - Generated on: Sun Aug 23 03:43:02 UTC 2026
